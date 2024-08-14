@@ -1,5 +1,6 @@
 import express from "express";
 import fileDb from "../fileDb";
+import { imagesUpload } from "../multer";
 
 const postRouter = express.Router();
 
@@ -8,9 +9,9 @@ postRouter.get("/", async (req, res) => {
   return res.send(posts);
 });
 
-postRouter.post("/", async (req, res) => {
-     if (!req.body.message || req.body.message.trim()  === "" ) {
-    return res.status(400).send({error: 'Сообщение не может быть пустым!'});
+postRouter.post("/", imagesUpload.single("image"), async (req, res) => {
+  if (!req.body.message || req.body.message.trim() === "") {
+    return res.status(400).send({ error: "Сообщение не может быть пустым!" });
   }
 
   const post = {
@@ -19,9 +20,8 @@ postRouter.post("/", async (req, res) => {
     image: req.file ? req.file.filename : null,
   };
 
-  const savedPost= await fileDb.addItem(post);
+  const savedPost = await fileDb.addItem(post);
   return res.send(savedPost);
-
-})
+});
 
 export default postRouter;
